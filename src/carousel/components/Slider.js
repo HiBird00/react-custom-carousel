@@ -9,7 +9,8 @@ const SliderWrapper = styled.div`
 const SliderList = styled.div`
   display: flex;
 
-  transition: ${(props) => (props.index === 1 ? "" : "all 0.5s linear")};
+  transition: ${(props) =>
+    props.index === props.count ? "" : "all 0.5s linear"};
   transform: ${(props) => `translateX(${-100 * props.index}%)`};
 `;
 
@@ -47,13 +48,19 @@ const Slider = () => {
 
   const [newSlides, setNewSlides] = useState(createSlides);
 
+  const loop = useRef(false);
   useEffect(() => {
     const startTimer = setInterval(
-      () =>
-        setCurrentIndex((prev) =>
-          prev === newSlides.length - 1 ? count : prev + 1
-        ),
-      currentIndex === 1 ? 0 : 2000
+      () => {
+        if (currentIndex === newSlides.length - 1) {
+          loop.current = true;
+          setCurrentIndex(count);
+        } else {
+          loop.current = false;
+          setCurrentIndex(currentIndex + 1);
+        }
+      },
+      loop.current ? 0 : 2000
     );
     return () => {
       clearInterval(startTimer);
@@ -62,7 +69,7 @@ const Slider = () => {
 
   return (
     <SliderWrapper>
-      <SliderList ref={sliderRef} index={currentIndex}>
+      <SliderList ref={sliderRef} index={currentIndex} count={count}>
         {newSlides?.map((color, index) => (
           <SliderItem key={index}>
             <div key={index} style={{ background: color }}>
