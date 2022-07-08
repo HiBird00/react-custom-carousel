@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 const SliderWrapper = styled.div`
@@ -14,6 +8,9 @@ const SliderWrapper = styled.div`
 
 const SliderList = styled.div`
   display: flex;
+
+  transition: ${(props) => (props.index === 1 ? "" : "all 0.5s linear")};
+  transform: ${(props) => `translateX(${-100 * props.index}%)`};
 `;
 
 const SliderItem = styled.div`
@@ -38,7 +35,6 @@ const Slider = () => {
   const sliderRef = useRef(null);
   const count = 1; // 양쪽에 추가할 개수
   const [currentIndex, setCurrentIndex] = useState(count);
-  let isTransform = useRef(true);
 
   const createSlides = useCallback(() => {
     const items = [...slides];
@@ -57,45 +53,18 @@ const Slider = () => {
         setCurrentIndex((prev) =>
           prev === newSlides.length - 1 ? count : prev + 1
         ),
-      2000
+      currentIndex === 1 ? 0 : 2000
     );
     return () => {
       clearInterval(startTimer);
     };
-  }, [newSlides]);
-
-  useEffect(() => {
-    // if (currentIndex === newSlides.length - 1) {
-    //   // 마지막 인덱스라면
-    //   console.log("hi");
-    //   sliderRef.current.style.transition = "";
-    //   sliderRef.current.style.transform = `
-    //     translateX(${-100 * count}%)
-    //   `;
-    //   setCurrentIndex(count);
-    // } else {
-    //   sliderRef.current.style.transition = "all 0.5s linear";
-    //   sliderRef.current.style.transform = `
-    //     translateX(${-100 * currentIndex}%)
-    //   `;
-    // }
-  }, [currentIndex, newSlides]);
+  }, [newSlides, currentIndex]);
 
   return (
     <SliderWrapper>
-      <SliderList
-        ref={sliderRef}
-        style={{
-          transition: `${
-            currentIndex === newSlides.length - 1 ? "" : "all 0.5s linear"
-          }`,
-          transform: `
-        translateX(${-100 * currentIndex}%)
-      `,
-        }}
-      >
+      <SliderList ref={sliderRef} index={currentIndex}>
         {newSlides?.map((color, index) => (
-          <SliderItem>
+          <SliderItem key={index}>
             <div key={index} style={{ background: color }}>
               {index}
             </div>
